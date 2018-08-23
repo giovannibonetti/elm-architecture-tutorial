@@ -46,7 +46,6 @@ type Msg
 -- https://stackoverflow.com/questions/37227421/how-do-i-add-a-second-die-to-this-elm-effects-example#answer-37228575
 dieGenerator : Random.Generator Int
 dieGenerator =
-  --Random.int 1 6
   Random.weighted
     (10, 1)
     [ (10, 2)
