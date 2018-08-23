@@ -1,7 +1,7 @@
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onInput, onClick)
 
 
 
@@ -20,12 +20,14 @@ type alias Model =
   { name : String
   , password : String
   , passwordAgain : String
+  , age : Maybe Int
+  , showValidation: Bool
   }
 
 
 init : Model
 init =
-  Model "" "" ""
+  Model "" "" "" Nothing False
 
 
 
@@ -36,6 +38,8 @@ type Msg
   = Name String
   | Password String
   | PasswordAgain String
+  | Age(Maybe Int)
+  | Submit
 
 
 update : Msg -> Model -> Model
@@ -50,6 +54,11 @@ update msg model =
     PasswordAgain password ->
       { model | passwordAgain = password }
 
+    Age age ->
+      { model | age = age }
+
+    Submit ->
+      { model | showValidation = True }
 
 
 -- VIEW
@@ -57,22 +66,61 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ viewInput "text" "Name" model.name Name
-    , viewInput "password" "Password" model.password Password
-    , viewInput "password" "Re-enter Password" model.passwordAgain PasswordAgain
-    , viewValidation model
-    ]
+  let
+    ageString = model.age |> maybeIntToString
+    ageFromString str =
+      if str == "" then
+        Age Nothing
+      else
+        Age(String.toInt str)
+  in
+    div []
+      [ viewInput "text" "Name" model.name Name
+      , viewInput "password" "Password" model.password Password
+      , viewInput "password" "Re-enter Password" model.passwordAgain PasswordAgain
+      , viewInput "age" "Age" ageString ageFromString
+      , button [ onClick Submit ] [ text "Submit" ]
+      , viewValidation model
+      ]
 
 
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
   input [ type_ t, placeholder p, value v, onInput toMsg ] []
 
+maybeIntToString : Maybe Int -> String
+maybeIntToString intOrString =
+  case intOrString of
+    Nothing -> ""
+    Just int -> String.fromInt int
 
 viewValidation : Model -> Html msg
 viewValidation model =
-  if model.password == model.passwordAgain then
-    div [ style "color" "green" ] [ text "OK" ]
-  else
-    div [ style "color" "red" ] [ text "Passwords do not match!" ]
+  let
+    okMessageIfEmpty : List (Html msg) -> List (Html msg)
+    okMessageIfEmpty list =
+      if List.isEmpty list then
+        [ div [ style "color" "green" ] [ text "OK" ] ]
+      else
+        list
+    showValidationFilter (_) = model.showValidation
+  in
+    [
+      (
+        model.age == Nothing,
+        div [ style "color" "red" ] [ text "Age must be provided!" ]
+      ), (
+        String.isEmpty model.password,
+        div [ style "color" "red" ] [ text "Password is required!" ]
+      ), (
+        String.length model.password < 8,
+          div [ style "color" "red" ] [ text "Password is too short!" ]
+      ), (
+        model.password /= model.passwordAgain,
+        div [ style "color" "red" ] [ text "Passwords do not match!" ]
+      )
+    ] |> List.filter Tuple.first
+      |> List.map Tuple.second
+      |> okMessageIfEmpty
+      |> List.filter showValidationFilter
+      |> div []
