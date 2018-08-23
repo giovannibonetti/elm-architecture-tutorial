@@ -1,5 +1,6 @@
 import Browser
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Task
 import Time
@@ -80,6 +81,11 @@ subscriptions model =
 
 -- VIEW
 
+h1Styles =
+  [ style "border" "1px solid"
+  , style "width" "125px"
+  , style "padding" "3px 1px 3px 9px"
+  ]
 
 view : Model -> Html Msg
 view model =
@@ -90,6 +96,6 @@ view model =
     second = intToPaddedStr (Time.toSecond model.zone model.time)
   in
     div []
-      [ h1 [] [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
+      [ h1 h1Styles [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
       ,  button [ onClick Pause ] [ text "Pause" ]
       ]
