@@ -87,8 +87,12 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-    --[ h2 [] [ text model.topic ]
-    [ input [ type_ "text", placeholder "topic", onInput Topic, value model.topic ] []
+    --[ input [ type_ "text", placeholder "topic", onInput Topic, value model.topic ] []
+    [ select [ onInput Topic, value model.topic ]
+      [ option [ value "cat" ] [ text "cat" ]
+      , option [ value "dog" ] [ text "dog" ]
+      , option [ value "duck" ] [ text "duck" ]
+      ]
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , br [] []
     , img [ src model.url ] []
