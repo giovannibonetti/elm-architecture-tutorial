@@ -1,10 +1,11 @@
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Html, div, h1, input, button, text)
+import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Task
 import Time
-
+import Svg exposing (svg, rect, circle)
+import Svg.Attributes exposing (height, width, viewBox, fill, stroke, transform, x, y, r, rx, ry, cx, cy)
 
 
 -- MAIN
@@ -17,7 +18,6 @@ main =
     , update = update
     , subscriptions = subscriptions
     }
-
 
 
 -- MODEL
@@ -90,12 +90,64 @@ h1Styles =
 view : Model -> Html Msg
 view model =
   let
-    intToPaddedStr int = String.padLeft 2 '0' (String.fromInt int)
-    hour   = intToPaddedStr (Time.toHour   model.zone model.time)
-    minute = intToPaddedStr (Time.toMinute model.zone model.time)
-    second = intToPaddedStr (Time.toSecond model.zone model.time)
+    paddedStr int = String.padLeft 2 '0' (String.fromInt int)
+    hourInt       = Time.toHour   model.zone model.time
+    minuteInt     = Time.toMinute model.zone model.time
+    secondInt     = Time.toSecond model.zone model.time
+    hourStr       = paddedStr hourInt
+    minuteStr     = paddedStr minuteInt
+    secondStr     = paddedStr secondInt
+    hourAngle     = hourInt * 360 // 12 - 180
+    minuteAngle   = minuteInt * 360 // 60 - 180
+    secondAngle   = secondInt * 360 // 60 - 180
   in
     div []
-      [ h1 h1Styles [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
+      [ h1 h1Styles [ text (hourStr ++ ":" ++ minuteStr ++ ":" ++ secondStr) ]
       ,  button [ onClick Pause ] [ text "Pause" ]
+      ,  svg
+          [ width "120"
+          , height "120"
+          , viewBox "0 0 120 120"
+          ]
+          [ circle
+              [ fill "white"
+              , stroke "black"
+              , cx "50"
+              , cy "50"
+              , r "50"
+              ]
+              []
+          , rect
+              [ x "0"
+              , y "0"
+              , width "1"
+              , height "50"
+              , fill "red"
+              , stroke "red"
+              , transform ("translate(50, 50) rotate(" ++ String.fromInt(secondAngle) ++ ")")
+              , rx "1"
+              , ry "1"
+              ]
+              []
+          , rect
+              [ x "0"
+              , y "0"
+              , width "5"
+              , height "50"
+              , transform ("translate(50, 50) rotate(" ++ String.fromInt(minuteAngle) ++ ")")
+              , rx "3"
+              , ry "3"
+              ]
+              []
+          , rect
+              [ x "0"
+              , y "0"
+              , width "5"
+              , height "25"
+              , transform ("translate(50, 50) rotate(" ++ String.fromInt(hourAngle) ++ ")")
+              , rx "3"
+              , ry "3"
+              ]
+              []
+          ]
       ]
