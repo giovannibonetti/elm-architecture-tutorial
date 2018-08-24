@@ -78,7 +78,7 @@ view model =
       [ viewInput "text" "Name" model.name Name
       , viewInput "password" "Password" model.password Password
       , viewInput "password" "Re-enter Password" model.passwordAgain PasswordAgain
-      , viewInput "age" "Age" ageString ageFromString
+      , viewInput "text" "Age" ageString ageFromString
       , button [ onClick Submit ] [ text "Submit" ]
       , viewValidation model
       ]

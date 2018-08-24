@@ -44,6 +44,7 @@ init _ =
 type Msg
   = MorePlease
   | NewGif (Result Http.Error String)
+  | Topic String
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -66,7 +67,10 @@ update msg model =
           , Cmd.none
           )
 
-
+    Topic topic ->
+      ( { model | topic = topic }
+      , Cmd.none
+      )
 
 -- SUBSCRIPTIONS
 
@@ -83,7 +87,8 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-    [ h2 [] [ text model.topic ]
+    --[ h2 [] [ text model.topic ]
+    [ input [ type_ "text", placeholder "topic", onInput Topic, value model.topic ] []
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , br [] []
     , img [ src model.url ] []
