@@ -27,12 +27,13 @@ main =
 type alias Model =
   { topic : String
   , url : String
+  , title : String
   }
 
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model "cat" "waiting.gif"
+  ( Model "cat" "waiting.gif" ""
   , getRandomGif "cat"
   )
 
@@ -43,7 +44,7 @@ init _ =
 
 type Msg
   = MorePlease
-  | NewGif (Result Http.Error String)
+  | NewGif (Result Http.Error ResponseData)
   | Topic String
 
 
@@ -57,8 +58,8 @@ update msg model =
 
     NewGif result ->
       case result of
-        Ok newUrl ->
-          ( { model | url = newUrl }
+        Ok responseData ->
+          ( { model | url = responseData.url, title = responseData.title }
           , Cmd.none
           )
 
@@ -87,7 +88,6 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-    --[ input [ type_ "text", placeholder "topic", onInput Topic, value model.topic ] []
     [ select [ onInput Topic, value model.topic ]
       [ option [ value "cat" ] [ text "cat" ]
       , option [ value "dog" ] [ text "dog" ]
@@ -95,12 +95,19 @@ view model =
       ]
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , br [] []
+    , h2 [] [ text model.title ]
     , img [ src model.url ] []
     ]
 
 
 
 -- HTTP
+
+
+type alias ResponseData =
+  { url : String
+  , title : String
+  }
 
 
 getRandomGif : String -> Cmd Msg
@@ -116,6 +123,8 @@ toGiphyUrl topic =
     ]
 
 
-gifDecoder : Decode.Decoder String
+gifDecoder : Decode.Decoder ResponseData
 gifDecoder =
-  Decode.field "data" (Decode.field "image_url" Decode.string)
+  Decode.map2 ResponseData
+    (Decode.field "data" (Decode.field "image_url" Decode.string))
+    (Decode.field "data" (Decode.field "title" Decode.string))
