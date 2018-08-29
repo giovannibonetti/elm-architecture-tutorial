@@ -1,3 +1,5 @@
+module Main exposing (Model, Msg(..), dieGenerator, diePairGenerator, h1Styles, init, main, subscriptions, update, view)
+
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,12 +12,12 @@ import Random
 
 
 main =
-  Browser.element
-    { init = init
-    , update = update
-    , subscriptions = subscriptions
-    , view = view
-    }
+    Browser.element
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        , view = view
+        }
 
 
 
@@ -23,16 +25,16 @@ main =
 
 
 type alias Model =
-  { dieFace1 : Int
-  , dieFace2 : Int
-  }
+    { dieFace1 : Int
+    , dieFace2 : Int
+    }
 
 
-init : () -> (Model, Cmd Msg)
+init : () -> ( Model, Cmd Msg )
 init _ =
-  ( Model 1 6
-  , Cmd.none
-  )
+    ( Model 1 6
+    , Cmd.none
+    )
 
 
 
@@ -40,37 +42,43 @@ init _ =
 
 
 type Msg
-  = Roll
-  | NewFaces (Int, Int)
+    = Roll
+    | NewFaces ( Int, Int )
+
+
 
 -- https://stackoverflow.com/questions/37227421/how-do-i-add-a-second-die-to-this-elm-effects-example#answer-37228575
+
+
 dieGenerator : Random.Generator Int
 dieGenerator =
-  Random.weighted
-    (10, 1)
-    [ (10, 2)
-    , (10, 3)
-    , (10, 4)
-    , (20, 5)
-    , (40, 6)
-    ]
+    Random.weighted
+        ( 10, 1 )
+        [ ( 10, 2 )
+        , ( 10, 3 )
+        , ( 10, 4 )
+        , ( 20, 5 )
+        , ( 40, 6 )
+        ]
 
-diePairGenerator : Random.Generator (Int, Int)
+
+diePairGenerator : Random.Generator ( Int, Int )
 diePairGenerator =
-  Random.pair dieGenerator dieGenerator
+    Random.pair dieGenerator dieGenerator
 
-update : Msg -> Model -> (Model, Cmd Msg)
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    Roll ->
-      ( model
-      , Random.generate NewFaces diePairGenerator
-      )
+    case msg of
+        Roll ->
+            ( model
+            , Random.generate NewFaces diePairGenerator
+            )
 
-    NewFaces (newFace1, newFace2) ->
-      ( Model newFace1 newFace2
-      , Cmd.none
-      )
+        NewFaces ( newFace1, newFace2 ) ->
+            ( Model newFace1 newFace2
+            , Cmd.none
+            )
 
 
 
@@ -79,22 +87,24 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.none
+    Sub.none
 
 
 
 -- VIEW
 
+
 h1Styles =
-  [ style "border" "1px solid"
-  , style "width" "25px"
-  , style "padding" "3px 1px 3px 9px"
-  ]
+    [ style "border" "1px solid"
+    , style "width" "25px"
+    , style "padding" "3px 1px 3px 9px"
+    ]
+
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ h1 h1Styles [ text (String.fromInt model.dieFace1) ]
-    , h1 h1Styles [ text (String.fromInt model.dieFace2) ]
-    , button [ onClick Roll ] [ text "Roll" ]
-    ]
+    div []
+        [ h1 h1Styles [ text (String.fromInt model.dieFace1) ]
+        , h1 h1Styles [ text (String.fromInt model.dieFace2) ]
+        , button [ onClick Roll ] [ text "Roll" ]
+        ]
