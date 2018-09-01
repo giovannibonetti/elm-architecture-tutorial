@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), init, main, maybeIntToString, update, view, viewInput, viewValidation)
+module Main exposing (Model, Msg(..), init, main, update, view, viewInput, viewValidation)
 
 import Browser
 import Html exposing (..)
@@ -71,14 +71,10 @@ view : Model -> Html Msg
 view model =
     let
         ageString =
-            model.age |> maybeIntToString
+            model.age |> Maybe.map String.fromInt |> Maybe.withDefault ""
 
         ageFromString str =
-            if str == "" then
-                Age Nothing
-
-            else
-                Age (String.toInt str)
+            Age (String.toInt str)
     in
     div []
         [ viewInput "text" "Name" model.name Name
@@ -95,29 +91,17 @@ viewInput t p v toMsg =
     input [ type_ t, placeholder p, value v, onInput toMsg ] []
 
 
-maybeIntToString : Maybe Int -> String
-maybeIntToString intOrString =
-    case intOrString of
-        Nothing ->
-            ""
-
-        Just int ->
-            String.fromInt int
-
-
 viewValidation : Model -> Html msg
 viewValidation model =
     let
         okMessageIfEmpty : List (Html msg) -> List (Html msg)
         okMessageIfEmpty list =
-            if List.isEmpty list then
-                [ div [ style "color" "green" ] [ text "OK" ] ]
+            case list of
+                [] ->
+                    [ div [ style "color" "green" ] [ text "OK" ] ]
 
-            else
-                list
-
-        showValidationFilter _ =
-            model.showValidation
+                _ ->
+                    list
     in
     [ ( model.age == Nothing
       , div [ style "color" "red" ] [ text "Age must be provided!" ]
@@ -135,5 +119,5 @@ viewValidation model =
         |> List.filter Tuple.first
         |> List.map Tuple.second
         |> okMessageIfEmpty
-        |> List.filter showValidationFilter
+        |> List.filter (always model.showValidation)
         |> div []
